@@ -253,7 +253,11 @@ static int amdgpu_atif_verify_interface(struct amdgpu_atif *atif)
 	}
 	size = min(sizeof(output), size);
 
-	memcpy(&output, info->buffer.pointer, size);
+	size_t safe_size = min(sizeof(output), size);
+	if (safe_size > info->buffer.length) {
+	  return -EINVAL;
+	}
+	memcpy(&output, info->buffer.pointer, safe_size);
 
 	/* TODO: check version? */
 	DRM_DEBUG_DRIVER("ATIF version %u\n", output.version);
